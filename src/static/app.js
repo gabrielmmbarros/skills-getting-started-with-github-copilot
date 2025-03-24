@@ -19,12 +19,15 @@ document.addEventListener("DOMContentLoaded", () => {
         activityCard.className = "activity-card";
 
         const spotsLeft = details.max_participants - details.participants.length;
+        const participantsList = details.participants.map(participant => `<li>${participant}</li>`).join('');
 
         activityCard.innerHTML = `
           <h4>${name}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <p><strong>Participants:</strong></p>
+          <ul>${participantsList}</ul>
         `;
 
         activitiesList.appendChild(activityCard);
@@ -40,6 +43,28 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error fetching activities:", error);
     }
   }
+
+  fetch('/activities')
+    .then(response => response.json())
+    .then(data => {
+      const activitiesContainer = document.querySelector('#activities');
+      activitiesContainer.innerHTML = '';
+
+      Object.keys(data).forEach(activityName => {
+        const activity = data[activityName];
+        const participantsList = activity.participants.map(participant => `<li>${participant}</li>`).join('');
+
+        activitiesContainer.innerHTML += `
+          <section class="activity-card">
+            <h4>${activityName}</h4>
+            <p>${activity.description}</p>
+            <p><strong>Schedule:</strong> ${activity.schedule}</p>
+            <p><strong>Participants:</strong></p>
+            <ul>${participantsList}</ul>
+          </section>
+        `;
+      });
+    });
 
   // Handle form submission
   signupForm.addEventListener("submit", async (event) => {
